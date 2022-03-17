@@ -35,7 +35,7 @@
 import TopNav from "../../../../components/common/TopNav";
 import imMain from "./im/imMain";
 import {IM} from "./im/store";
-import {submitAnswer, requireAnsweredNumber} from "../../../../netWork/api";
+import {submitAnswer, requireAnsweredNumber, endAnswer} from "../../../../netWork/api";
 import {sendMessage} from "./IframeAnswerCommunication";
 //import subject from "./subject/subject";
 
@@ -52,8 +52,9 @@ export default {
       isTextMask: false,
       //昵称
       nickname: this.$store.state.nickname,
-      mySrc: " http://210.45.123.127:8081",
-     // mySrc: "http://10.0.1.71:8081",
+      //mySrc: " http://210.45.123.127:8081",
+      //mySrc: 'http://10.0.1.71:8081',
+      mySrc: this.$store.state.student.currentCourse.taskWidget,
       questionIndex: '1',
       groupLength: this.$store.state.groupLength,
       endAnswer: false
@@ -65,7 +66,8 @@ export default {
     // subject
   },
   created() {
-    this.$EventBus.$emit('modifyIsTabControl', false)
+    this.$EventBus.$emit('modifyIsTabControl', false);
+    this.$store.commit('setIsTabControl', false);
   },
   computed:{
     isIm(){
@@ -86,7 +88,7 @@ export default {
     },*/
     interval(){
         var interval1 = setInterval(() => {
-          if(!this.$store.state.endAnswer) {
+          if(!this.endAnswer) {
             console.log(this.questionIndex);
             requireAnsweredNumber({
               groupID: this.$store.state.groupID,
@@ -103,7 +105,7 @@ export default {
               clearInterval(interval1);
             }
 
-        }, 500)
+        }, 10000)
 
     },
     /*sendMessages(w) {
@@ -113,9 +115,9 @@ export default {
       //console.log('11111');
       console.log(e);
       if(e.data.questionIndex){
-        console.log('5555555555555555555');
+       // console.log('5555555555555555555');
         this.questionIndex = String(e.data.questionIndex)
-        console.log(this.questionIndex);
+        //console.log(this.questionIndex);
       }
       if (e.data.startAnswer) {
         IM.startAnswer = e.data.startAnswer;
@@ -127,12 +129,12 @@ export default {
         IM.setIsMessageMask(true);
       }
       if(e.data.firstSubmit){
-        console.log(e);
+        //console.log(e);
        //this.isTextMask = false;
         //this.setIsTextMask(true);
         IM.setIsTextMask(true);
         this.questionIndex = e.data.questionIndex;
-        submitAnswer({ myID: this.$store.state.user.id,
+        submitAnswer({ myID: this.$store.state.user.UID,
           groupID: this.$store.state.groupID ,
           questionIndex: e.data.questionIndex,
           myAnswer: e.data.myAnswer,
@@ -143,22 +145,28 @@ export default {
         })
       }
       if(e.data.submit){
-        submitAnswer({ myID: this.$store.state.user.id,
+        submitAnswer({ myID: this.$store.state.user.UID,
           groupID: this.$store.state.groupID ,
           questionIndex: e.data.questionIndex,
           myAnswer: e.data.myAnswer
         })
       }
       if(e.data.endAnswer){
+        console.log('99999999999999999');
+        console.log(this.$store.state.user.UID);
         setTimeout(() =>{
-          this.$EventBus.$emit('modifyIsTabControl', true);
-          //this.$store.commit('setVertification', true);
-          this.$store.commit('modify_isVerification', true);
-          this.$store.commit('setEndAnswer', e.data.endAnswer);
-          //window.localStorage.setItem('isVertification', 'true');
-          this.$store.commit('setIsTabControl', true);
-          //this.$router.push('historycourse');
-          window.location.replace('/student/current');
+          endAnswer({ myID: this.$store.state.user.UID, groupID: this.$store.state.groupID})
+          .then((res) => {
+            console.log(res);
+            this.endAnswer = true;
+            this.$store.commit('setIsTabControl', true);
+            //this.$store.commit('setVertification', true);
+            this.$store.commit('modify_isVerification', true);
+            this.$store.commit('setEndAnswer', e.data.endAnswer);
+            //window.localStorage.setItem('isVertification', 'true');
+            this.$router.push('/student/historycourse');
+            // window.location.replace('/student/current');
+          })
         },4000)
         console.log('88888888888888888888');
           this.$toast.show({
@@ -208,6 +216,9 @@ export default {
       }
 
     }
+  },
+  destroyed() {
+    this.endAnswer = true;
   }
 }
 </script>

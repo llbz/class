@@ -6,7 +6,7 @@
     <top-nav :title="message"></top-nav>
   </div>
 <!-- 班级页面-->
-  <class v-if="isClass" :teams="teams" @sendTeams="sendTeams" @setIsMonitor="setIsMonitor"/>
+  <class v-if="isClass" @sendTeams="sendTeams" @setIsMonitor="setIsMonitor"/>
 <!-- 监控页面-->
   <monitor v-else-if="!isClass && isMonitor" :teams="monitorTeam" :number-of-class="numberOfClass"/>
   <!--当前页面的课程-->
@@ -30,15 +30,13 @@ import TopNav from "../../../components/common/TopNav";
 import ClassList from "../../../components/common/ClassList";
 import Class from "./class/Class";
 import Monitor from "./class/Monitor";
-import {cancelClass, requireClassStudent} from "../../../netWork/api";
+import {cancelClass} from "../../../netWork/api";
 export default {
   name: "CurrentCourse",
   data(){
     return {
       message: 'CPS课程',
-      course: this.$store.state.teacher.class
-              ? JSON.parse(localStorage.getItem('teacher')).class
-              :this.$store.state.teacher.class,
+      course: this.$store.state.teacher.class,
       role: this.$store.state.userInfo.role,
       isClass: this.$store.state.isClass,
       teams: [],
@@ -50,6 +48,9 @@ export default {
                : false,
     }
   },
+  created() {
+    this.$store.commit('setIsRequireClassStudent', true);
+  },
   components:{
     TopNav,
     ClassList,
@@ -58,28 +59,6 @@ export default {
   },
   methods:{
 
-    /*
-    * 定时请求查询加入了课程的学生
-    * 只有当isClass为真即进入课程页面才查询
-    * 所有加入的学生以数组的形式返回，保存在teams中
-    * */
-    requireStudent(){
-      if(this.$store.state.isClass){
-        var interVal = setInterval(() => {
-          if(this.$store.state.isClass){
-            requireClassStudent({inviteCode: this.inCode})
-                .then(
-                    res => {
-                      this.teams = res
-                    })
-          }
-          else {
-           clearInterval(interVal) ;
-          }
-
-        }, 5000)
-      }
-    },
     /*
     * 将组队页面的组队信息记录下来，用于教师的监控页面
     * */
@@ -101,30 +80,27 @@ export default {
     * 首先将store中的isClass标识置否
     * 发出取消组队的网络请求，告知服务器
     * */
-    this.$EventBus.$on('isClass',() => {
-      // console.log('1111');
-      this.$store.commit("setIsClass", false);
+    this.$EventBus.$on('deleteClass',() => {
+       console.log('1111');
       this.teams = [];
       console.log(this.$store.state.classId);
-      console.log(this.$store.state.user.id);
-      cancelClass({classID: this.$store.state.classId, id: this.$store.state.user.id})
+      console.log(this.$store.state.user.UID);
+      cancelClass({classID: this.$store.state.classId, id: this.$store.state.user.UID})
           .then( (res) => {
             console.log(res);
+            this.$store.commit("setIsClass", false);
            // this.$EventBus.$off('isClass');
           })
 
       //console.log(this.$store.state.isClass);
     });
-
-    //定时查询学生的函数入口
-    this.requireStudent();
   },
   computed:{
     Class(){
       return this.$store.state.isClass
     },
     // 当前课程的邀请码
-    inCode(){
+   /* inCode(){
       if(this.$store.state.teacher.vertification) {
         console.log('11111111111111111');
         return this.$store.state.teacher.vertification
@@ -135,15 +111,12 @@ export default {
         console.log(JSON.parse(localStorage.getItem('teacher')));
         return JSON.parse(localStorage.getItem('teacher')).vertification;
       }
-    },
-
+    },*/
   },
   watch:{
     Class(){
       this.isClass = this.$store.state.isClass;
-      if(this.isClass){
-        this.requireStudent();
-      }
+
     }
   },
 }

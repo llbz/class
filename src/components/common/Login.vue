@@ -67,6 +67,7 @@ export default {
                 this.name = res.myInfo.role;
                 console.log(this.name);
                 this.$store.commit('loginSuccess', res);
+                this.$store.commit('setIsRequireClassStudent', false);
                 console.log(this.$store.state.userInfo);
                 console.log(this.$store.state.user);
                 console.log(this.$store.state.teacher.historyCourse);

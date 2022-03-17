@@ -94,7 +94,7 @@ export default {
           console.log(this.inputValue.join(''));
           /*提交课程邀请码到服务器验证*/
           submitVertification({
-            id: this.$store.state.student.im.user.id,
+            id: this.$store.state.student.im.user.UID,
             inviteCode: this.inputValue.join('')
           })
           .then( res =>{
@@ -113,8 +113,9 @@ export default {
             })
             this.$store.commit('modify_isVerification', false)
           })
-        .catch( () => {
-          this.isShow1 = false
+          .catch( () => {
+            console.log('999999999999999');
+            this.isShow1 = false
           this.isError2 = true
           setTimeout(() =>{
             this.isShow1 = false;

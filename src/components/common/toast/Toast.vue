@@ -2,7 +2,7 @@
   <div class="toast" v-if="isShow">
       <div class="toast1" v-if="isShow1">
           <div class="top">
-            {{message1}}
+            <span>{{message1}}</span>
           </div>
         <div class="bottom">
           <button @click="waiting_mask">确定</button>
@@ -95,7 +95,13 @@ export default {
           this.$EventBus.$emit('isMask');
         }
         else if(this.sure === 3){
-          this.$EventBus.$emit('isClass')
+          this.$EventBus.$emit('deleteClass');
+        }
+        else if(this.sure === 4){
+          this.$EventBus.$emit('teamEnd');
+        }
+        else if(this.sure === 5){
+          this.$EventBus.$emit('endCourse');
         }
       },
       cancel(){
@@ -132,17 +138,26 @@ export default {
   overflow: hidden;
 }
 .toast1 .top{
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 480px;
   height: 136px;
-  line-height: 136px;
   background: #F5F5F5;
   box-shadow: 0 2px 0 0 #EBEBEB;
   border-bottom: 1px solid rgba(50, 50, 50, .1);
+  padding: 0 20px;
+
+}
+.top span{
   font-family: PingFangSC-Medium;
   font-size: 20px;
   color: #525252;
   font-weight: 500;
   text-align: center;
+  white-space: pre;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 .toast1 .bottom{
   display: flex;

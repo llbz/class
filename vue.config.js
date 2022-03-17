@@ -1,4 +1,4 @@
-module.exports={
+module.exports= {
     css: {
         loaderOptions: {
             postcss: {
@@ -15,5 +15,7 @@ module.exports={
                 ]
             }
         }
-    }
+    },
+    publicPath: './',
 }
+

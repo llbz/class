@@ -63,18 +63,20 @@ export default {
    邀请码请求成功后，将邀请码，以及相应控制变量写入store中
    * */
     Tclassbtn(){
-      console.log(this.$store.state.user.id);
+      console.log(this.$store.state.user.UID);
       console.log(this.$store.state.userInfo.id);
       requireVertification({
-        id: this.$store.state.user.id,
+        id: this.$store.state.user.UID,
         classID: '1',
         className: '1',
-        taskID: this.courseItem.taskID
+        taskID: this.courseItem.TID
       })
       .then(res =>{
         console.log(res);
         //将邀请码写入store中
         this.$store.commit('setVertification', res);
+        this.$store.commit('setRangeNumber', res.taskInfo);
+        this.$store.commit('setIsRequireClassStudent', true);
         console.log(this.$store.state.classId);
         console.log(JSON.parse(localStorage.getItem('teacher')));
         if(this.$store.state.teacher.vertification || JSON.parse(localStorage.getItem('teacher')).vertification){

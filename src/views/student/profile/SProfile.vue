@@ -63,7 +63,7 @@ export default {
   },
   methods:{
     loginOut() {
-      this.$router.push('/login');
+      this.$router.push('/login_student');
       this.$store.commit('setState');
       window.localStorage.removeItem('userInfo');
       window.sessionStorage.removeItem('store');

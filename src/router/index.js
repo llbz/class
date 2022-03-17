@@ -8,7 +8,7 @@ VueRouter.prototype.push = function push(location) {
     return originalPush.call(this, location).catch(err => err)
 }
 
-const Login = () => import('../components/common/Login')
+//const Login = () => import('../components/common/Login')
 const CurrentCourse = () =>import('../views/teacher/currentcourse/CurrentCourse')
 const Main = () => import('../views/Main')
 const HistoryCourseItem = () => import("../views/teacher/historycourse/HistoryCourseItem")
@@ -22,6 +22,10 @@ const SProfile = () =>import('../views/student/profile/SProfile')
 const Answer = () =>import('../views/student/currentcourse/childrenComponents/Answer')
 const HistoryCourseList = () => import("../views/teacher/historycourse/historyCourseList")
 const Monitor = () => import("../views/teacher/currentcourse/class/Monitor")
+const  Login1 = () => import("../components/common/Login_student")
+const  Login2 = () => import("../components/common/login_teacher")
+const  Login3 = () => import("../components/common/login_account")
+const setpassword = () => import('../components/common/setPassword')
 
 /*const Smain = () => import('../views/student/Smain')*/
 
@@ -30,11 +34,23 @@ Vue.use(VueRouter)
 const routes = [
     {
         path: '',
-        redirect: '/login'
+        redirect: '/login_student'
     },
     {
-        path: '/login',
-        component: Login,
+        path: '/login_student',
+        component: Login1,
+    },
+    {
+        path: '/login_teacher',
+        component: Login2,
+    },
+    {
+        path: '/login_account',
+        component: Login3,
+    },
+    {
+        path: '/setpassword',
+        component: setpassword,
     },
 
     {
@@ -99,6 +115,12 @@ const routes = [
             {
                 path: '/student/current',
                 component: SCurrentCourse,
+                children:[
+                    {
+                        path:'/answer',
+                        component: Answer,
+                    }
+                ]
             },
             {
                 path: '/student/historycourse',
@@ -108,10 +130,7 @@ const routes = [
                 path: '/student/profile',
                 component: SProfile,
             },
-            {
-                path:'/student/answer',
-                component: Answer,
-            }
+
         ]
     },
 
@@ -119,7 +138,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
-    mode: 'history',
+    mode: 'hash',
     base: process.env.BASE_URL,
     routes
 })

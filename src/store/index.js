@@ -49,7 +49,7 @@ const state = {
     isIm: false,
     isMessageMask: false,
     isTextMask: false,
-
+    isRequireClassStudent: true,
     //用户信息
     user:{
 

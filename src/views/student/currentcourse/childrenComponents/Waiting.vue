@@ -52,6 +52,7 @@ export default {
       /*是否显示去答题按钮，默认为false，不显示*/
       isAnswer: false,
       countdown: 0,
+      isRequireClassStudent: true,
 
     }
   },
@@ -63,21 +64,23 @@ export default {
     //监测store中isCompleteTeamFormation的值是否变化
     "$store.state.isCompleteTeamFormation": {
       handler: function () {
-        this.$emit('isMask');
-        this.startCountdown();
-        this.$toast.show({
-          isShow: true,
-          isShow1: true,
-          message1: '组队完成，距离答题还有十秒钟',
-          duration: 10000,
-          sure: 2
-        })
+        if (this.$store.state.isCompleteTeamFormation) {
+          this.$emit('isMask');
+          this.startCountdown();
+          this.$toast.show({
+            isShow: true,
+            isShow1: true,
+            message1: '组队完成，距离答题还有十秒钟',
+            duration: 10000,
+            sure: 2
+          })
+        }
       }
     },
   },
   computed: {
     currentCourse() {
-      if(this.$store.state.student.currentCourse.title){
+      if(this.$store.state.student.currentCourse){
         return this.$store.state.student.currentCourse
       }
      else{
@@ -98,55 +101,78 @@ export default {
   methods: {
     /*倒计时*/
     startCountdown() {
-      this.countdown = 10;
-      let timeInt = setInterval(() => {
-        this.countdown--
-        if (this.countdown <= 0) {
-          window.clearInterval(timeInt);
-          this.$router.push('/student/answer')
-        }
-      }, 1000)
+      if(!this.$store.state.isVerification) {
+        this.countdown = 10;
+        let timeInt = setInterval(() => {
+          if(!this.$store.state.isVerification){
+          this.countdown--
+          if (this.countdown <= 0) {
+            window.clearInterval(timeInt);
+            this.$router.push('/answer')
+            this.$store.commit('setIsTabControl', false);
+           }
+          }
+        }, 1000)
+      }
     },
     //定时请求查询组队状态
     requireIsStart() {
      let interVal = setInterval(() => {
-          //向服务器发送请求，查询是否完成了组队
-          //返回值包括表示课程状态的classState，1表示依然在组队中，2表示组队完成了，3表示该课程被老师清除了
-          studentStartClass({classID: this.$store.state.classId, myID: this.$store.state.user.id})
-              .then((res) => {
-                console.log(res);
-                if (res.groupState === 'ACTIVE') {
-                  //组队完成，保存组别状态到store中，该值为一个下标值，
-                  //调用test函数，改变isCompleteTeamFormation信号量的值
-                  this.$store.commit('setGroup', res.groupIndex);
-                  console.log(this.$store.state.student.group);
-                  this.$store.commit('modify_isCompleteTeamFormation');
-                  this.$store.commit('setNickname', res.nickName);
-                  this.$store.commit('setGroupID', res.groupID);
-                  this.$store.commit('setGroupLength', res.groupLength);
-                  console.log(this.$store.state.nickname);
-                  clearInterval(interVal);
-                }
-                else if (res.groupState === 'GROUPUNDEFIND') {
-                  this.$toast.show({
-                    isShow: true,
-                    isShow2: true,
-                    message2: '该课程已被老师取消',
-                    duration: 3000,
-                    delete: 2,
-                  });
-                  if(!this.$store.state.isVerification){
-                    setTimeout(() => {
-                      this.$store.commit('modify_isVerification', true);
-                      console.log('111111111111');
-                    }, 3000)
-                  }
-                  clearInterval(interVal);
-                }
-              })
-        }, 500)
+       if(this.isRequireClassStudent) {
+         //向服务器发送请求，查询是否完成了组队
+         //返回值包括表示课程状态的classState，1表示依然在组队中，2表示组队完成了，3表示该课程被老师清除了
+         studentStartClass({classID: this.$store.state.classId, myID: this.$store.state.user.UID})
+             .then((res) => {
+               console.log(res);
+               if (res.groupState === 'ACTIVE') {
+                 //组队完成，保存组别状态到store中，该值为一个下标值，
+                 //调用test函数，改变isCompleteTeamFormation信号量的值
+                 this.$store.commit('setGroup', res.groupIndex);
+                 console.log(this.$store.state.student.group);
+                 this.$store.commit('setIsCompleteTeamFormation', true);
+                 this.$store.commit('setNickname', res.nickName);
+                 this.$store.commit('setGroupID', res.groupID);
+                 this.$store.commit('setGroupLength', res.groupLength);
+                 console.log(this.$store.state.nickname);
+                 //clearInterval(interVal);
+               } else if (res.groupState === 'GROUPUNDEFIND') {
+                 this.$toast.show({
+                   isShow: true,
+                   isShow2: true,
+                   message2: '该课程已被老师取消',
+                   duration: 3000,
+                   delete: 2,
+                 });
+                 if (!this.$store.state.isVerification) {
+                   setTimeout(() => {
+                     this.isAnswer = false;
+                     this.$store.commit('setIsCompleteTeamFormation', false);
+                     this.$router.push('/student/current');
+                     this.$store.commit('modify_isVerification', true);
+                     this.$store.commit('setIsTabControl', true);
+                     console.log('111111111111');
+                   }, 3000)
+                 }
+                 clearInterval(interVal);
+               } else if (res.groupState === 'END') {
+                 this.$toast.show({
+                   isShow: true,
+                   isShow2: true,
+                   message2: '该课程已被老师结束',
+                   duration: 3000,
+                   delete: 3,
+                 });
+                 setTimeout(this.endAnswer, 3000);
+                 clearInterval(interVal);
+               }
+             })
+       }
+       else{
+         clearInterval(interVal);
+       }
+        }, 5000)
 
-  /*   var interVal = setInterval(() => {
+  /*   var interVal = 1etInterval(() => {
         //向服务器发送请求，查询是否完成了组队
         //返回值包括表示课程状态的classState，1表示依然在组队中，2表示组队完成了，3表示该课程被老师清除了
         studentStartClass({classID: this.$store.state.classId, myID: this.$store.state.user.id})
@@ -182,7 +208,13 @@ export default {
     },
     goAnswer() {
       /*this.$EventBus.$emit('answer')*/
-      this.$router.push('/student/answer')
+      this.$router.push('/answer')
+      this.$store.commit('setIsTabControl', false);
+    },
+    endAnswer(){
+      this.$store.commit('setIsCompleteTeamFormation', false);
+      this.$store.commit('modify_isVerification', true);
+      this.$router.push('current');
     }
   },
   mounted() {
@@ -196,6 +228,9 @@ export default {
     this.requireIsStart();
     console.log(this.currentCourse);
   },
+  destroyed() {
+    this.isRequireClassStudent = false;
+  }
 
 }
 

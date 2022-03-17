@@ -15,8 +15,10 @@ export class CPSTim {
   // 构造函数，执行TIM初始化及个人信息并进行登陆
   constructor (id, name, classID,nickname) {
     // 请求url
-    this.baseUrl = 'http://114.214.164.86:3001'
-    //this.baseUrl = 'http://121.40.243.16:3001'
+    this.baseUrl = 'http://114.214.164.86:3002'
+    //this.baseUrl = 'https://121.40.243.16:443'
+    //this.baseUrl = 'http://114.214.170.238:3002'
+    //this.baseUrl = 'http://10.0.1.85:3002';
     // 个人id
     this.id = id
     this.name = name

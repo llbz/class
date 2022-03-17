@@ -8,12 +8,14 @@ axios.defaults.timeout = 10000;
  //设置post请求方式请求头
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
-//axios.defaults.baseURL = 'http://121.40.243.16:3001';
-axios.defaults.baseURL = 'http://114.214.164.86:3001';
+axios.defaults.baseURL = 'https://121.40.243.16:443';
+//axios.defaults.baseURL = 'http://114.214.170.238:3002';
+//axios.defaults.baseURL = 'http://10.0.1.85:3002';
+//axios.defaults.baseURL = 'http://114.214.164.86:3002';
 
 axios.interceptors.request.use(config => {
-   // console.log(config);
-    if(config.url !== "/class/login"){
+    //console.log(config);
+    if(config.url !== "/user/getMsgVerifyCode" && config.url !== "/user/getCaptcha"  && config.url !== "/user/verifyCaptcha" && config.url !== "/user/verifyMsgCode"){
         const token = JSON.parse(localStorage.getItem('token'));
         token && (config.headers.xAccessToken = token);
     }

@@ -20,7 +20,7 @@ export default {
   data(){
     return{
       user: this.$store.state.student.im.user,
-      tim: new CPSTim(this.$store.state.student.im.user.id, this.$store.state.student.im.user.name,this.$store.state.classId, this.$store.state.nickname),
+      tim: new CPSTim(this.$store.state.student.im.user.UID, this.$store.state.student.im.user.name,this.$store.state.classId, this.$store.state.nickname),
       length: 0,
       /*isIm: this.$store.state.isIm,
       isMessageMask: this.$store.state.isMessageMask,

@@ -1,11 +1,12 @@
 <template>
 <!--  主页面-->
-  <login v-if="!isLogin"/>
-<div id="t-main" v-else>
+<div id="t-main" >
 <!--  <bottom-nav/>-->
 <!--  底部导航-->
+  <keep-alive>
   <router-view>
   </router-view>
+  </keep-alive>
   <tab-control :titles="['当前课程', '历史课程', '个人中心']"
                ref="tabControl1"
                class="tabControl"
@@ -19,25 +20,31 @@
 <script>
 /*import BottomNav from "../components/common/BottomNav";*/
 import TabControl from "../components/content/tabcontrol/TabControl";
-import Login from "../components/common/Login";
+
 export default {
   name: "Main",
   data() {
     return {
       currentType: 'teacher/current',
-      isTabControl: true,
+
     }
   },
   components: {
     // BottomNav
     TabControl,
-    Login
+  },
+  created() {
+    this.$store.commit('setIsTabControl', true);
   },
   computed:{
     isLogin(){
-      return localStorage.getItem('isLogin')
+     /* return localStorage.getItem('isLogin')
              ? localStorage.getItem('isLogin')
-             : false
+             : false*/
+      return this.$store.state.isLogin;
+    },
+    isTabControl(){
+      return  this.$store.state.isTabControl;
     }
   },
   methods: {
@@ -70,9 +77,7 @@ export default {
     })
   },*/
   mounted() {
-    this.$EventBus.$on('modifyIsTabControl', (args) => {
-      this.isTabControl = args;
-    })
+
   },
   watch:{
     currentType(){

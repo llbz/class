@@ -23,7 +23,7 @@ export default {
       }
     },
      course:{
-      type: Array,
+        type: Array,
       default(){
         return []
       }
